@@ -10,7 +10,7 @@
 
 
 int main(int argc, char* argv[]) {
-  size_t n = 1e7;
+  size_t n = 1e6;
   int num_rounds = 3;
   if (argc >= 2) {
     n = atoll(argv[1]);
@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
   // Create the input list. Break the input permutation at 0, i.e.,
   // the first node is 0, and the last node is whichever node maps to
   // 0 in the permutation.
-  ListNode* L = (ListNode*)malloc(n * sizeof(ListNode));
+  ListNodeSampling* L = (ListNodeSampling*)malloc(n * sizeof(ListNodeSampling));
   auto reset_list = [&] () {
     parallel_for(0, n, [&](size_t i) {
       size_t next_id = P[i];

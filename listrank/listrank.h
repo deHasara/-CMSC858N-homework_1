@@ -64,6 +64,38 @@ void SerialListRanking(ListNode* head) {
 // Depth = O(\log^2(n))
 void WyllieListRanking(ListNode* L, size_t n) {
 
+    //ListNode* save = L;
+    ListNode* head =L;
+    //ListNode* save_first = &save[0];
+    ListNode* head_first = &head[0];
+
+    /*for(int i=0; i<n; i++){
+        if (head->next == NULL){
+            head->rank = 0;
+        }else{
+            head->rank = 1;
+        }
+        head=head->next;
+    }*/
+
+    while (head->next!=NULL){
+        head->rank = 1;
+        head = head->next;
+    }
+    head->rank=0;
+
+    head = head_first;
+
+    while (head_first->next!=NULL){
+        for(size_t i=0; i<n; i++){
+            if (head->next!=NULL){
+                head->rank = head->rank + head->next->rank;
+                head->next = head->next->next;
+            }
+            head=head->next;
+        }
+    }
+
 }
 
 
@@ -72,12 +104,53 @@ void WyllieListRanking(ListNode* L, size_t n) {
 // The work/depth bounds of your implementation should be:
 // Work = O(n) whp
 // Depth = O(\sqrt(n)* \log(n)) whp
-void SamplingBasedListRanking(ListNode* L, size_t n, long num_samples=-1, parlay::random r=parlay::random(0)) {
+
+struct ListNodeSampling {
+    ListNodeSampling* next;
+    size_t rank;
+    size_t rand;
+    bool head = false;
+    size_t dist=1;
+    size_t time;
+    ListNodeSampling* previous;
+    ListNodeSampling(ListNodeSampling* next) : next(next), rank(std::numeric_limits<size_t>::max()) {}
+};
+
+void SamplingBasedListRanking(ListNodeSampling* L, size_t n) {
   // Perhaps use a serial base case for small enough inputs?
 
-  if (num_samples == -1) {
-    num_samples = sqrt(n);
-  }
+    size_t t =1;
+    size_t i =0;
+    ListNodeSampling* cell = &L[0];
+    cell->head = true;
+
+    //splice
+    while (i< log2_up(n)){
+        cell->rand = rand()%2;
+        if (cell->rand==1 and (cell->next->head == false or cell->next->rand==0)){
+            cell->previous->next=cell->next;
+            cell->next->previous=cell->previous;
+            cell->previous->dist=cell->previous->dist + cell->dist;
+            cell->time = t;
+            i = i+1;
+            cell = &L[i];
+            cell->head = true;
+        }
+        t = t+1;
+    }
+    //reconstruct
+    i = log2_up(n);
+    cell = &L[log2_up(n)];
+    t=t;
+    while (i>=0){
+        if(cell->time==t){
+            cell->rank = cell->next->rank + cell->dist;
+            i=i-1;
+            cell = &L[i];
+        }
+        t=t-1;
+    }
+
 
 }
 

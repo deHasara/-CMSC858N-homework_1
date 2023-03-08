@@ -25,3 +25,23 @@ T reduce(T *A, size_t n) {
     return v1 + v2;
   }
 }
+
+template <class T>
+T reduce_granularity(T *A, size_t n) {
+    size_t granularity_control =100;
+    if (n == 0) {
+        return 0;
+    }else if(n<=granularity_control){
+        T tot = 0;
+        for (size_t i=0; i<n; ++i) {
+            tot += A[i];
+        }
+        return tot;
+    } else {
+        T v1, v2;
+        auto f1 = [&]() { v1 = reduce_granularity(A, n / 2); };
+        auto f2 = [&]() { v2 = reduce_granularity(A + n / 2, n - n / 2); };
+        par_do(f1, f2);
+        return v1 + v2;
+    }
+}

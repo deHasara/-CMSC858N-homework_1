@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
     auto f = [&] (Type l, Type r) { return std::max(l,r); };
     auto g = [&] (Type l, Type r) { return l + r; };
     Type ans;
-    if (func){
+    if (!func){
       // ans = scan_inplace(A, n, f, id);
       ans = scan_inplace_serial(A, n, f, id);
     } else{
