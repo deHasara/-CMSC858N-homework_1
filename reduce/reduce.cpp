@@ -41,18 +41,18 @@ int main(int argc, char* argv[]) {
   double total_time = 0;
   for (int i = 0; i <= num_rounds; i++) {
     parlay::timer t;
-    long long ans = reduce(A, n);
+    //long long ans = reduce(A, n);
     long long ans_granularity = reduce_granularity(A, n);
     //long long ans = serial_reduce(A, n);
     t.stop();
 
     if (i == 0) {
       if (test){
-        std::cout << ans << std::endl;
-        //std::cout << ans_granularity << std::endl;
+        //std::cout << ans << std::endl;
+        std::cout << ans_granularity << std::endl;
       }
       else{
-        std::cout << "Total sum: " << ans << std::endl;
+        //std::cout << "Total sum: " << ans << std::endl;
         std::cout << "Total sum with granularity: "<< ans_granularity << std::endl;
         std::cout << "Warmup round running time: " << t.total_time() << std::endl;
       }
