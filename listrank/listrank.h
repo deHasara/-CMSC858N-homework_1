@@ -137,44 +137,48 @@ struct ListNodeSampling {
     size_t dist=1;
     size_t time;
     ListNodeSampling* previous;
-    ListNodeSampling(ListNodeSampling* next) : next(next), rank(std::numeric_limits<size_t>::max()) {}
+
 };
 
 void SamplingBasedListRanking(ListNodeSampling* L, size_t n) {
   // Perhaps use a serial base case for small enough inputs?
 
     size_t t =1;
-    size_t i =0;
-    ListNodeSampling* cell = &L[0];
+    size_t j =0;
+    ListNodeSampling* cell = L;
     cell->head = true;
 
+    std::mutex mutex;
+
     //splice
-    while (i< log2_up(n)){
-        cell->rand = rand()%2;
-        if (cell->rand==1 and (cell->next->head == false or cell->next->rand==0)){
-            cell->previous->next=cell->next;
-            cell->next->previous=cell->previous;
-            cell->previous->dist=cell->previous->dist + cell->dist;
-            cell->time = t;
+
+    parlay::parallel_for(1, log2_up(n), [&](size_t i){
+        cell[i].rand = rand()%2;
+        std::lock_guard<std::mutex> lock(mutex);
+        if (cell[i].rand==1 and (cell[i].next->head == false or cell[i].next->rand==0)){
+            cell[i].previous->next=cell[i].next;
+            cell[i].next->previous=cell[i].previous;
+            cell[i].previous->dist=cell[i].previous->dist + cell[i].dist;
+            cell[i].time = t;
             i = i+1;
             cell = &L[i];
-            cell->head = true;
+            cell[i+1].head = true;
         }
         t = t+1;
-    }
+    });
+
+
     //reconstruct
-    i = log2_up(n);
+    j = log2_up(n);
     cell = &L[log2_up(n)];
     t=t;
-    while (i>=0){
+    while (j>=0){
         if(cell->time==t){
             cell->rank = cell->next->rank + cell->dist;
-            i=i-1;
-            cell = &L[i];
+            j=j-1;
+            cell = &L[j];
         }
         t=t-1;
     }
-
-
 }
 

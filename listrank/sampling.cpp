@@ -10,7 +10,7 @@
 
 
 int main(int argc, char* argv[]) {
-  size_t n = 1e6;
+  size_t n = 100;
   int num_rounds = 3;
   if (argc >= 2) {
     n = atoll(argv[1]);
@@ -52,18 +52,29 @@ int main(int argc, char* argv[]) {
   // the first node is 0, and the last node is whichever node maps to
   // 0 in the permutation.
   ListNodeSampling* L = (ListNodeSampling*)malloc(n * sizeof(ListNodeSampling));
+  //std::cout<<P[0]<< std::endl;
+
+  //std::cout<<*std::max_element(P, P+n)<<std::endl;
   auto reset_list = [&] () {
     parallel_for(0, n, [&](size_t i) {
       size_t next_id = P[i];
       if (next_id != 0) {
-        L[i].next = L + next_id;
+          L[i].next = L + next_id;
       } else {
-        L[i].next = nullptr;
+         //std::cout<<next_id<<std::endl;
+         L[i].next = nullptr;
       }
-      L[i].rank = std::numeric_limits<size_t>::max();
+      if(next_id != *std::max_element(P, P+n)){
+          L[i].previous = L + P[i-1];
+      }else{
+          L[i].previous = nullptr;
+      }
+      //L[i].rank = std::numeric_limits<size_t>::max();
     });
   };
   reset_list();
+
+
 
   double total_time = 0;
   for (int i = 0; i <= num_rounds; i++) {
