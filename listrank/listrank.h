@@ -6,6 +6,7 @@
 
 // For computing sqrt(n)
 #include <math.h>
+#include "mutex"
 
 using namespace parlay;
 
@@ -65,9 +66,9 @@ void SerialListRanking(ListNode* head) {
 void WyllieListRanking(ListNode* L, size_t n) {
 
     //ListNode* save = L;
-    ListNode* head =L;
+    //ListNode* head =L;
     //ListNode* save_first = &save[0];
-    ListNode* head_first = &head[0];
+    //ListNode* head_first = &head[0];
 
     /*for(int i=0; i<n; i++){
         if (head->next == NULL){
@@ -76,7 +77,7 @@ void WyllieListRanking(ListNode* L, size_t n) {
             head->rank = 1;
         }
         head=head->next;
-    }*/
+    }
 
     while (head->next!=NULL){
         head->rank = 1;
@@ -94,6 +95,29 @@ void WyllieListRanking(ListNode* L, size_t n) {
             }
             head=head->next;
         }
+    }
+     */
+
+    std::mutex mutex;
+
+    parlay::parallel_for(0, n, [&](size_t i){
+        //mutex is automatically released when lock goes out of scope
+        std::lock_guard<std::mutex> lock(mutex);
+        if(L[i].next != nullptr) {
+            L[i].rank = 1;
+        }else{
+            L[i].rank = 0;
+        }
+    });
+
+    for(size_t i=0;i<log2_up(n);i++){
+        parlay::parallel_for(0, n, [&](size_t j){
+            std::lock_guard<std::mutex> lock(mutex);
+            if(L[j].next != nullptr){
+                L[j].rank = L[j].rank + L[j].next->rank;
+                L[j].next = L[j].next->next;
+            }
+        });
     }
 
 }
