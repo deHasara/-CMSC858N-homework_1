@@ -10,7 +10,7 @@
 
 
 int main(int argc, char* argv[]) {
-  size_t n = 1e9;
+  size_t n = 1e8;
   int num_rounds = 3;
   if (argc >= 2) {
     n = atoll(argv[1]);
