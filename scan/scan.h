@@ -38,7 +38,7 @@ T scan_inplace(T *A, size_t n, const F& f, T id) {
 
 template <class T, class F>
 T scan_up(T *A , T *L, size_t n, const F& f, T id) {
-    if (n <= 100000) {
+    if (n <= 1e4) {
         return scan_inplace_serial(A, n, f, id);
     } else {
         T l, r;
@@ -54,7 +54,7 @@ T scan_up(T *A , T *L, size_t n, const F& f, T id) {
 
 template <class T, class F>
 void scan_down(T *A, T *L, size_t n, const F& f, T s) {
-    if (n <= 100000) {
+    if (n <= 1e4) {
         scan_inplace_serial(A, n, f, s);
     } else {
         auto f1 = [&]() { scan_down(A, L, n / 2, f, s); };
