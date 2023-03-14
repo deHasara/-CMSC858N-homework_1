@@ -12,7 +12,7 @@ using Type = long long;
 
 int main(int argc, char* argv[]) {
   auto num_threads = std::thread::hardware_concurrency();
-  std::cout<<"num threads: "<<num_threads <<std::endl;
+  //std::cout<<"num threads: "<<num_threads <<std::endl;
 
   size_t n = 1e9;
   int num_rounds = 3;
