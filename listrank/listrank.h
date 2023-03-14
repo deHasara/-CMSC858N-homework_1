@@ -65,61 +65,33 @@ void SerialListRanking(ListNode* head) {
 // Depth = O(\log^2(n))
 void WyllieListRanking(ListNode* L, size_t n) {
 
-    //ListNode* save = L;
-    //ListNode* head =L;
-    //ListNode* save_first = &save[0];
-    //ListNode* head_first = &head[0];
-
-    /*for(int i=0; i<n; i++){
-        if (head->next == NULL){
-            head->rank = 0;
-        }else{
-            head->rank = 1;
-        }
-        head=head->next;
-    }
-
-    while (head->next!=NULL){
-        head->rank = 1;
-        head = head->next;
-    }
-    head->rank=0;
-
-    head = head_first;
-
-    while (head_first->next!=NULL){
-        for(size_t i=0; i<n; i++){
-            if (head->next!=NULL){
-                head->rank = head->rank + head->next->rank;
-                head->next = head->next->next;
-            }
-            head=head->next;
-        }
-    }
-     */
-
-    std::mutex mutex;
-
-    parlay::parallel_for(0, n, [&](size_t i){
-        //mutex is automatically released when lock goes out of scope
-        //std::lock_guard<std::mutex> lock(mutex);
-        if(L[i].next != nullptr) {
+    int *succ = (int*)malloc(sizeof(int) * n);
+    int *succ_prime = (int*)malloc(sizeof(int) * n);
+    int *rank = (int*)malloc(sizeof(int) * n);
+    parallel_for(0, n, [&](size_t i) {
+        if (L[i].next != nullptr) {
             L[i].rank = 1;
-        }else{
+            succ[i] = L[i].next - L;
+        } else {
             L[i].rank = 0;
+            succ[i] = 0;
         }
     });
-
-    for(size_t i=0;i<log2_up(n);i++){
-        parlay::parallel_for(0, n, [&](size_t j){
-            //std::lock_guard<std::mutex> lock(mutex);
-            if(L[j].next != nullptr){
-                L[j].rank = L[j].rank + L[j].next->rank;
-                L[j].next = L[j].next->next;
+    int value = log2_up(n);
+    for (int k = 0; k < value ; k++) {
+        parallel_for(0, n, [&](size_t i) {
+            if (succ[i] != 0) {
+                rank[i] = L[i].rank + L[succ[i]].rank;
+                succ_prime[i] = succ[succ[i]];
+            } else {
+                succ_prime[i] = succ[i];
             }
         });
+        parallel_for(0, n, [&](size_t i) {
+            succ[i] = succ_prime[i];
+            L[i].rank = rank[i];
+        });
     }
-
 }
 
 
