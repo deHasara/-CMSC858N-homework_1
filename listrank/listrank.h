@@ -102,7 +102,7 @@ void WyllieListRanking(ListNode* L, size_t n) {
 
     parlay::parallel_for(0, n, [&](size_t i){
         //mutex is automatically released when lock goes out of scope
-        std::lock_guard<std::mutex> lock(mutex);
+        //std::lock_guard<std::mutex> lock(mutex);
         if(L[i].next != nullptr) {
             L[i].rank = 1;
         }else{
@@ -112,7 +112,7 @@ void WyllieListRanking(ListNode* L, size_t n) {
 
     for(size_t i=0;i<log2_up(n);i++){
         parlay::parallel_for(0, n, [&](size_t j){
-            std::lock_guard<std::mutex> lock(mutex);
+            //std::lock_guard<std::mutex> lock(mutex);
             if(L[j].next != nullptr){
                 L[j].rank = L[j].rank + L[j].next->rank;
                 L[j].next = L[j].next->next;
