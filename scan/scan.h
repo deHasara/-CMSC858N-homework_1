@@ -15,8 +15,6 @@ using namespace parlay;
 template <class T, class F>
 T scan_inplace_serial(T *A, size_t n, const F& f, T id) {
   T cur = id;
-  //std::cout << "cur: " << cur << std::endl;
-
   for (size_t i=0; i<n; ++i) {
     T next = f(cur, A[i]);
     A[i] = cur;
